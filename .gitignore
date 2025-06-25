@@ -1,0 +1,87 @@
+# ==========================================
+#  Go 项目标准 .gitignore（适用于大型项目）
+# ==========================================
+
+# 构建输出
+/bin/
+/build/
+/dist/
+/out/
+
+# Go 构建缓存
+*.exe
+*.test
+*.out
+
+# Go Modules 缓存
+/vendor/
+
+# Go 编译缓存和调试文件
+*.log
+*.tmp
+*.swp
+*.prof
+*.pprof
+*.cov
+*.coverprofile
+*.lcov
+*.DS_Store
+
+# 临时文件（如 go run 生成的）
+*.run
+*.pid
+
+# IDE / 编辑器生成的文件
+.vscode/
+.idea/
+*.iml
+
+# 操作系统临时文件
+Thumbs.db
+.DS_Store
+ehthumbs.db
+Desktop.ini
+
+# GoLand 特定文件
+*.go.ide
+*.go.work
+*.workspace
+
+# 日志 / 上传 / 备份目录（视项目而定）
+/logs/
+/uploads/
+/backups/
+
+# 本地环境配置（根据你的实际目录结构）
+.env
+.env.*
+*.local
+config/*.local.yaml
+
+# Web 前端构建目录（若内嵌前端）
+/frontend/node_modules/
+/frontend/dist/
+
+# 数据库或区块链缓存
+*.db
+*.sqlite
+*.ldb
+*.leveldb
+
+# 代码生成工具文件（根据你是否使用）
+/mock/
+/gen/
+/swagger/
+
+# 如果使用 Docker，忽略构建镜像中的中间层
+*.dockerignore
+Dockerfile.*
+.docker/
+
+# 如果使用 Makefile 生成中间产物
+*.mk.out
+*.mk.temp
+
+# Go Workspaces（go work）相关
+go.work
+go.work.sum
