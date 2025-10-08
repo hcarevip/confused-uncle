@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+// 定义Protobuf的包名/命名空间
+package api.order.v1;
+// 格式：go_package = "<你的 go.mod 的 module>/<proto 所在目录>;包名别名
+option go_package = "hcarevip/uucoming/confused-uncle/uploads;order";
+
+message CreateOrderRequest {
+  string order_id = 1;
+  double amount   = 2;
+  string currency = 3;
+  message Item {
+    string sku   = 1;
+    int32  qty   = 2;
+    double price = 3;
+  }
+  repeated Item items = 4;
+  string customer_id = 5;
+  string email       = 6;
+}

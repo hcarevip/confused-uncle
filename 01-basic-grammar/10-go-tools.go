@@ -712,6 +712,48 @@ func (l *LinkedHashMap[K, V]) Iterate(fn func(K, V) bool) {
 	}
 }
 
+// 缩容实现
+
+// ShrinkIfNeeded 依据 len/ cap 的利用率和当前cap区间，决定是否缩容。
+// 返回新的底层切片（可能与入参共用或重建）。
+func ShrinkIfNeeded[T any](s []T) []T {
+	c, l := cap(s), len(s)
+	if l == 0 || c <= 64 { // 很小的/空的，不动
+		return s[:l:l]
+	}
+
+	// 计算目标cap与是否缩容
+	newCap, ok := calCapacity(c, l)
+	if !ok || newCap < l { // 目标cap至少要能容纳现有len
+		return s[:l:l]
+	}
+
+	// 只有当 newCap < c 时才重建，避免无谓拷贝
+	if newCap >= c {
+		return s[:l:l]
+	}
+
+	// 重建并copy，达到真正缩容
+	ns := make([]T, l, newCap)
+	copy(ns, s)
+	return ns
+}
+
+func calCapacity(c, l int) (int, bool) {
+	if c <= 64 {
+		return c, false
+	}
+	// 大切片，利用率 <= 50% 才缩，温和缩到 62.5%
+	if c > 2048 && (c/l >= 2) {
+		return int(float32(c) * 0.625), true
+	}
+	// 中小切片，利用率 <= 25% 才缩，砍半
+	if c <= 2048 && (c/l >= 4) {
+		return c / 2, true
+	}
+	return c, false
+}
+
 func main() {
 	// 切片辅助方法
 	// （1）把切片里的每个元素按规则逐个变换，形成一个等长的新切片
@@ -911,4 +953,19 @@ func main() {
 		fmt.Println("Iterate: =>", k, v)
 		return true
 	})
+
+	// go 切片反向缩容
+	s := make([]int, 0, 100)
+	for i := 0; i < 5000; i++ {
+		s = append(s, i)
+	}
+	fmt.Printf("初始: len=%d, cap=%d\n", len(s), cap(s)) // 初始: len=5000, cap=5120
+
+	// 假设业务只保留前 100 个元素
+	s = s[:100]
+	fmt.Printf("缩容前: len=%d, cap=%d\n", len(s), cap(s)) // 缩容前: len=100, cap=5120
+
+	// 调用 ShrinkIfNeeded 回收冗余内存
+	s = ShrinkIfNeeded(s)
+	fmt.Printf("缩容后: len=%d, cap=%d\n", len(s), cap(s)) // 缩容后: len=100, cap=3200
 }
